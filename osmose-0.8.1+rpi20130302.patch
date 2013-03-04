@@ -1,0 +1,133 @@
+diff -crB /home/pi/osmose-0.8.1+rpi20121122/main.cpp /home/pi/osmose-0.8.1+rpi20130302/main.cpp
+*** ./main.cpp	2012-11-22 14:23:17.000000000 -0500
+--- ./main.cpp	2013-03-02 00:36:33.905730763 -0500
+***************
+*** 111,116 ****
+--- 111,118 ----
+      cout << "    -joy1 x           define joystick button x as 1" << endl;
+      cout << "    -joy2 x           define joystick button x as 2" << endl;
+      cout << "    -joystart x       define joystick button x as Start (Game Gear only)" << endl;
++     cout << "    -joyquit x        define joystick button x as Quit" << endl;
++ 
+  
+  }
+  
+***************
+*** 289,294 ****
+--- 291,315 ----
+  			}
+          }
+  
++         if (strcmp(rv[i],"-joyquit")==0)
++         {
++                    if (i < a-1)
++                    {
++                    emu_opt.joyquit = atoi( rv[i+1]);
++                                 if (emu_opt.joyquit < 0)
++                                 {
++                                 cerr << "No valid button for button Quit was given. Using default value." << endl;
++                             emu_opt.joyquit = 4;
++                                 }
++                                 cout << "Button Quit mapped to joystick button " << emu_opt.joyquit << endl;
++                         }
++                         else
++                         {
++                                 cerr << "No valid button for button Quit was given. Using default value." << endl;
++                             emu_opt.joyquit = 4;
++                         }
++         }
++ 
+  
+          if (strcmp(rv[i],"-dp")==0)
+          {
+diff -crB /home/pi/osmose-0.8.1+rpi20121122/Options.cpp /home/pi/osmose-0.8.1+rpi20130302/Options.cpp
+*** ./Options.cpp	2012-11-22 14:23:17.000000000 -0500
+--- ./Options.cpp	2013-03-02 00:36:33.915730463 -0500
+***************
+*** 40,44 ****
+--- 40,45 ----
+      joy2              = 1;
+      joystart          = 2;
+      joypause          = 3;
++     joyquit           = 4;
+      memset(ini_file,0,512);
+  }
+diff -crB /home/pi/osmose-0.8.1+rpi20121122/Options.h /home/pi/osmose-0.8.1+rpi20130302/Options.h
+*** ./Options.h	2012-11-22 14:23:17.000000000 -0500
+--- ./Options.h	2013-03-02 00:36:33.915730463 -0500
+***************
+*** 69,74 ****
+--- 69,75 ----
+      int joy2;
+      int joystart;
+      int joypause;
++     int joyquit;
+  
+      void reset();
+  };
+diff -crB /home/pi/osmose-0.8.1+rpi20121122/OsmoseCore.cpp /home/pi/osmose-0.8.1+rpi20130302/OsmoseCore.cpp
+*** ./OsmoseCore.cpp	2012-11-22 14:23:17.000000000 -0500
+--- ./OsmoseCore.cpp	2013-03-02 01:23:58.999676000 -0500
+***************
+*** 400,407 ****
+          /* Handle SDL Events */
+          while( SDL_PollEvent( &event ) )
+          {
+! 			if (event.type == SDL_QUIT) quit = true;
+!             handleSDLKeyboardEvent(event);
+          }
+  
+  
+--- 400,419 ----
+          /* Handle SDL Events */
+          while( SDL_PollEvent( &event ) )
+          {
+!             switch(event.type)
+!             {
+!                 case SDL_QUIT:
+!                     quit = true;
+!                     break;
+! 
+!                 case SDL_JOYBUTTONUP:
+!                     if ( (int)event.jbutton.button == emu_opt.joyquit )
+!                     {
+!                         quit = true;
+!                     }
+!                     break;
+!              }
+!         handleSDLKeyboardEvent(event);
+          }
+  
+  
+diff -crB /home/pi/osmose-0.8.1+rpi20121122/readme.rpi /home/pi/osmose-0.8.1+rpi20130302/readme.rpi
+*** ./readme.rpi	2012-11-22 14:23:17.000000000 -0500
+--- ./readme.rpi	2013-03-02 01:14:59.346073944 -0500
+***************
+*** 1,3 ****
+--- 1,13 ----
++ osmose-0.8.1+rpi20130302
++ ~~~~~~~~~~~~~~~~~~~~~~~~
++ 
++ I took palerider's excellent rpi port of Osmose, and simply added an option
++ to quit using the joystick.  It is configurable using the switch "-joyquit x"
++ at launch time.
++ 
++ --badman12345
++ 
++ 
+  osmose-0.8.1+rpi20121122
+  ~~~~~~~~~~~~~~~~~~~~~~~~
+  This is my port of the Sega Master System/Game Gear emulator OsmOse to the
+***************
+*** 14,19 ****
+--- 24,33 ----
+  
+  CHANGES:
+  ~~~~~~~~
++ rpi20130302:
++ 
++   * Added a joystick quit button, configurable with "-joyquit x" switch at run time
++ 
+  rpi20121122:
+  
+     * Fixed missing standard C library includes
