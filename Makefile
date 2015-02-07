@@ -1,7 +1,6 @@
 #Zlib
 Z_LIB_DIR=  ./zlib/
 Z_LIB    =  $(Z_LIB_DIR)libz.a
-libdir=/home/pi/libs/lib/arm-linux-gnueabihf
 
 #unzip based on zlib.
 UNZIP_DIR=  ./unzip/
@@ -53,9 +52,8 @@ OSM_EXE         =  osmose
 
 # Compiler/Linker Flags
 # add -pg on LFLAGS and CFLAGS for gprof
-RPIOPT =  -Ofast -march=armv6zk -mcpu=arm1176jzf-s -mtune=arm1176jzf-s -mfpu=vfp -mfloat-abi=hard -ffast-math -fstrict-aliasing -fomit-frame-pointer -funsafe-math-optimizations
-CFLAGS =  -Wall -D__USE_UNIX98 $(RPIOPT)
-LFLAGS =  -L/home/pi/libs/lib/arm-linux-gnueabihf -Wl,-rpath,${libdir} -lSDL  -lpthread
+CFLAGS += -Ofast -Wall -D__USE_UNIX98
+LFLAGS =  -lSDL
 AFLAGS =  -f elf
 CC  = g++
 C_COMP = gcc
